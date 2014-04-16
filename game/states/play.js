@@ -11,6 +11,11 @@ Play.prototype = {
 
     // Add background
     this.background = this.game.add.sprite(0, 0, 'background');
+
+    // Create new bird object
+    this.bird = new Bird(this.game, 100, this.game.height/2);
+    // Add the bird object to the game
+    this.game.add.existing(this.bird);
   },
 
   update: function() {
