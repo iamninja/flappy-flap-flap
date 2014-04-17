@@ -29,8 +29,14 @@ var Bird = function(game, x, y, frame) {
 	this.animations.add('flap');
 	this.animations.play('flap', 12, true);
 
+	// The bird starts as NOT alive
+	this.alive = false;
+
 	// Add physics body to bird
 	this.game.physics.arcade.enableBody(this);
+
+	// Disable gravity on bird (untill the game start)
+	this.body.allowGravity = false;
 };
 
 Bird.prototype = Object.create(Phaser.Sprite.prototype);
@@ -38,8 +44,9 @@ Bird.prototype.constructor = Bird;
 
 Bird.prototype.update = function() {
 	// If the bird's angle is less than 90 degrees
+	// and the bird is alive (game started)
 	// rotates the bird towards the ground
-	if (this.angle < 90) {
+	if (this.angle < 90 && this.alive) {
 		this.angle +=2.5;
 	}
 };
@@ -308,15 +315,27 @@ Play.prototype = {
     this.game.input.keyboard.addKeyCapture([Phaser.Keyboard.SPACEBAR]);
 
     // Add keyboard controls
-    var flapKey = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-    flapKey.onDown.add(this.bird.flap, this.bird);
+    this.flapKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    // The first flapKey initiate the game
+    this.flapKey.onDown.addOnce(this.startGame, this);
+    // all the next flapKeys initiate bird.flap
+    this.flapKey.onDown.add(this.bird.flap, this.bird);
 
     // Add mouse/touch controls
-    this.input.onDown.add(this.bird.flap, this.bird);
+    this.game.input.onDown.addOnce(this.startGame, this);
+    this.game.input.onDown.add(this.bird.flap, this.bird);
 
-    // Add timer for pipe generator and start it
-    this.pipeGenerator = this.game.time.events.loop(Phaser.Timer.SECOND * 1.25, this.generatePipes, this);
-    this.pipeGenerator.timer.start();
+    // // Add timer for pipe generator and start it
+    // this.pipeGenerator = this.game.time.events.loop(Phaser.Timer.SECOND * 1.25, this.generatePipes, this);
+    // this.pipeGenerator.timer.start();
+
+    // Create instructions group
+    this.instructionGroup = this.game.add.group();
+    this.instructionGroup.add(this.game.add.sprite(this.game.width/2, 100, 'getReady'));
+    this.instructionGroup.add(this.game.add.sprite(this.game.width/2, 325, 'instructions'));
+    // Anchor instructions
+    this.instructionGroup.setAll('anchor.x', 0.5);
+    this.instructionGroup.setAll('anchor.y', 0.5);
   },
 
   update: function() {
@@ -348,6 +367,19 @@ Play.prototype = {
     this.game.input.keyboard.removeKey(Phaser.Keyboard.SPACEBAR);
     this.bird.destroy();
     this.pipes.destroy();
+  },
+
+  startGame: function() {
+    // Enable gravity on bird and make it alive
+    this.bird.body.allowGravity = true;
+    this.bird.alive = true;
+
+    // Add timer for pipeGenerator and start it
+    this.pipeGenerator = this.game.time.events.loop(Phaser.Timer.SECOND * 1.25, this.generatePipes, this);
+    this.pipeGenerator.timer.start();
+
+    // Kill the instruction group
+    this.instructionGroup.destroy();
   }
 };
 
@@ -372,6 +404,9 @@ Preload.prototype = {
     this.load.image('ground', 'assets/ground.png');
     this.load.image('title', 'assets/title.png');
     this.load.image('startButton', 'assets/start-button.png');
+
+    this.load.image('instructions', 'assets/instructions.png');
+    this.load.image('getReady', 'assets/get-ready.png');
 
     this.load.spritesheet('bird', 'assets/bird.png', 34, 24, 3);
     this.load.spritesheet('pipe', 'assets/pipes.png', 54, 320, 2);

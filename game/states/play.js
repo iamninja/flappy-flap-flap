@@ -31,15 +31,27 @@ Play.prototype = {
     this.game.input.keyboard.addKeyCapture([Phaser.Keyboard.SPACEBAR]);
 
     // Add keyboard controls
-    var flapKey = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
-    flapKey.onDown.add(this.bird.flap, this.bird);
+    this.flapKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    // The first flapKey initiate the game
+    this.flapKey.onDown.addOnce(this.startGame, this);
+    // all the next flapKeys initiate bird.flap
+    this.flapKey.onDown.add(this.bird.flap, this.bird);
 
     // Add mouse/touch controls
-    this.input.onDown.add(this.bird.flap, this.bird);
+    this.game.input.onDown.addOnce(this.startGame, this);
+    this.game.input.onDown.add(this.bird.flap, this.bird);
 
-    // Add timer for pipe generator and start it
-    this.pipeGenerator = this.game.time.events.loop(Phaser.Timer.SECOND * 1.25, this.generatePipes, this);
-    this.pipeGenerator.timer.start();
+    // // Add timer for pipe generator and start it
+    // this.pipeGenerator = this.game.time.events.loop(Phaser.Timer.SECOND * 1.25, this.generatePipes, this);
+    // this.pipeGenerator.timer.start();
+
+    // Create instructions group
+    this.instructionGroup = this.game.add.group();
+    this.instructionGroup.add(this.game.add.sprite(this.game.width/2, 100, 'getReady'));
+    this.instructionGroup.add(this.game.add.sprite(this.game.width/2, 325, 'instructions'));
+    // Anchor instructions
+    this.instructionGroup.setAll('anchor.x', 0.5);
+    this.instructionGroup.setAll('anchor.y', 0.5);
   },
 
   update: function() {
@@ -71,6 +83,19 @@ Play.prototype = {
     this.game.input.keyboard.removeKey(Phaser.Keyboard.SPACEBAR);
     this.bird.destroy();
     this.pipes.destroy();
+  },
+
+  startGame: function() {
+    // Enable gravity on bird and make it alive
+    this.bird.body.allowGravity = true;
+    this.bird.alive = true;
+
+    // Add timer for pipeGenerator and start it
+    this.pipeGenerator = this.game.time.events.loop(Phaser.Timer.SECOND * 1.25, this.generatePipes, this);
+    this.pipeGenerator.timer.start();
+
+    // Kill the instruction group
+    this.instructionGroup.destroy();
   }
 };
 

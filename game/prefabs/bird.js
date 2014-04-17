@@ -11,8 +11,14 @@ var Bird = function(game, x, y, frame) {
 	this.animations.add('flap');
 	this.animations.play('flap', 12, true);
 
+	// The bird starts as NOT alive
+	this.alive = false;
+
 	// Add physics body to bird
 	this.game.physics.arcade.enableBody(this);
+
+	// Disable gravity on bird (untill the game start)
+	this.body.allowGravity = false;
 };
 
 Bird.prototype = Object.create(Phaser.Sprite.prototype);
@@ -20,8 +26,9 @@ Bird.prototype.constructor = Bird;
 
 Bird.prototype.update = function() {
 	// If the bird's angle is less than 90 degrees
+	// and the bird is alive (game started)
 	// rotates the bird towards the ground
-	if (this.angle < 90) {
+	if (this.angle < 90 && this.alive) {
 		this.angle +=2.5;
 	}
 };
