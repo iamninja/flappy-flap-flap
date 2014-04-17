@@ -42,6 +42,10 @@ Bird.prototype.update = function() {
   
 };
 
+Bird.prototype.flap = function() {
+	this.body.velocity.y = -400;
+};
+
 module.exports = Bird;
 
 },{}],3:[function(require,module,exports){
@@ -201,6 +205,16 @@ Play.prototype = {
     this.ground = new Ground(this.game, 0, 400, 335, 112);
     // Add the ground object to the game
     this.game.add.existing(this.ground);
+
+    // Keep spacebar from propogating up to the browser
+    this.game.input.keyboard.addKeyCapture([Phaser.Keyboard.SPACEBAR]);
+
+    // Add keyboard controls
+    var flapKey = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    flapKey.onDown.add(this.bird.flap, this.bird);
+
+    // Add mouse/touch controls
+    this.input.onDown.add(this.bird.flap, this.bird);
   },
 
   update: function() {
