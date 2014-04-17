@@ -139,12 +139,37 @@ var PipeGroup = function(game, parent) {
 
 PipeGroup.prototype = Object.create(Phaser.Group.prototype);
 PipeGroup.prototype.constructor = PipeGroup;
+PipeGroup.prototype.reset = function(x, y) {
+	// Reset the topPipe object to (0,0)
+	this.topPipe.reset(0, 0);
+	// Reset the bottomPipe object to (0, 440)
+	this.bottomPipe.reset(0, 440);
 
-// PipeGroup.prototype.update = function() {
-  
-//   // write your prefab's specific update code here
-  
-// };
+	// Set the group's x and y coordinates from the passed 
+	// in values (relative to the world)
+	this.x = x;
+	this.y = y;
+
+	// Set the x-velocity of all group's children
+	// to 200
+	this.setAll('body.velocity.x', -200);
+
+	// Clear the group's hasScored switch to false
+	this.hasScored = false;
+
+	// Set the group's exists property to true
+	this.exists = true;
+};
+
+PipeGroup.prototype.checkWorldBounds = function() {
+	if (!this.topPipe.inWorld) {
+		this.exists = false;
+	}
+};
+
+PipeGroup.prototype.update = function() {
+	this.checkWorldBounds();
+};
 
 module.exports = PipeGroup;
 
@@ -271,6 +296,9 @@ Play.prototype = {
     // Add the bird object to the game
     this.game.add.existing(this.bird);
 
+    // Create and add group to hold our pipeGroup prefabs
+    this.pipes = this.game.add.group();
+
     // Create new ground object
     this.ground = new Ground(this.game, 0, 400, 335, 112);
     // Add the ground object to the game
@@ -297,10 +325,13 @@ Play.prototype = {
   },
 
   generatePipes: function() {
+    console.log('generate pipes!')
     var pipeY = this.game.rnd.integerInRange(-100, 100);
-    var pipeGroup = new PipeGroup(this.game);
-    pipeGroup.x = this.game.width;
-    pipeGroup.y = pipeY;
+    var pipeGroup = this.pipes.getFirstExists(false);
+    if (!pipeGroup) {
+      pipeGroup = new PipeGroup(this.game, this.pipes);
+    }
+    pipeGroup.reset(this.game.width, pipeY)
   }
 };
 
