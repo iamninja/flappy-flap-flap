@@ -52,15 +52,26 @@ Play.prototype = {
     // Anchor instructions
     this.instructionGroup.setAll('anchor.x', 0.5);
     this.instructionGroup.setAll('anchor.y', 0.5);
+
+    // Set score to 0 at the start
+    this.score = 0;
+
+    // Add scoreText on play screen
+    this.scoreText = this.game.add.bitmapText(this.game.width/2, 10, 'flappyfont', this.score.toString(), 24);
+    // Set the score to be invisible by the start of the game (instruction screen)
+    this.scoreText.visible = false;
   },
 
   update: function() {
     // Make bird and ground collide
     this.game.physics.arcade.collide(this.bird, this.ground, this.deathHandler, null, this);
 
-    // Enable collisions between the bird and each
-    // group in the pipes group
+    // Iterate through pipeGroups
     this.pipes.forEach(function(pipeGroup) {
+      // Run checkScore for each pipeGroup
+      this.checkScore(pipeGroup);
+      // Enable collisions between the bird and each
+      // group in the pipes group
       this.game.physics.arcade.collide(this.bird, pipeGroup, this.deathHandler, null, this);
     }, this);
   },
@@ -96,6 +107,17 @@ Play.prototype = {
 
     // Kill the instruction group
     this.instructionGroup.destroy();
+
+    // Set the scoreText to be visible
+    this.scoreText.visible = true;
+  },
+
+  checkScore: function(pipeGroup) {
+    if(pipeGroup.exists && !pipeGroup.hasScored && pipeGroup.topPipe.world.x <= this.bird.world.x) {
+      pipeGroup.hasScored = true;
+      this.score++;
+      this.scoreText.setText(this.score.toString());
+    }
   }
 };
 
