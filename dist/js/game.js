@@ -321,7 +321,13 @@ Play.prototype = {
 
   update: function() {
     // Make bird and ground collide
-    this.game.physics.arcade.collide(this.bird, this.ground);
+    this.game.physics.arcade.collide(this.bird, this.ground, this.deathHandler, null, this);
+
+    // Enable collisions between the bird and each
+    // group in the pipes group
+    this.pipes.forEach(function(pipeGroup) {
+      this.game.physics.arcade.collide(this.bird, pipeGroup, this.deathHandler, null, this);
+    }, this);
   },
 
   generatePipes: function() {
@@ -332,6 +338,16 @@ Play.prototype = {
       pipeGroup = new PipeGroup(this.game, this.pipes);
     }
     pipeGroup.reset(this.game.width, pipeY)
+  },
+
+  deathHandler: function() {
+    this.game.state.start('gameover');
+  },
+
+  shutdown: function() {
+    this.game.input.keyboard.removeKey(Phaser.Keyboard.SPACEBAR);
+    this.bird.destroy();
+    this.pipes.destroy();
   }
 };
 
