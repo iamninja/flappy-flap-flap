@@ -221,11 +221,19 @@ Play.prototype = {
 
     // Add mouse/touch controls
     this.input.onDown.add(this.bird.flap, this.bird);
+
+    // Add timer for pipe generator and start it
+    this.pipeGenerator = this.game.time.events.loop(Phaser.Timer.SECOND * 1.25, this.generatePipes, this);
+    this.pipeGenerator.timer.start();
   },
 
   update: function() {
     // Make bird and ground collide
     this.game.physics.arcade.collide(this.bird, this.ground);
+  },
+
+  generatePipes: function() {
+    console.log('generating pipes!');
   }
 };
 
@@ -252,6 +260,7 @@ Preload.prototype = {
     this.load.image('startButton', 'assets/start-button.png');
 
     this.load.spritesheet('bird', 'assets/bird.png', 34, 24, 3);
+    this.load.spritesheet('pipe', 'assets/pipes.png', 54, 320, 2);
 
   },
   create: function() {
