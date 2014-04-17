@@ -19,6 +19,9 @@ var Bird = function(game, x, y, frame) {
 
 	// Disable gravity on bird (untill the game start)
 	this.body.allowGravity = false;
+
+	// Add flap sound
+	this.flapSound = this.game.add.audio('flap');
 };
 
 Bird.prototype = Object.create(Phaser.Sprite.prototype);
@@ -34,6 +37,8 @@ Bird.prototype.update = function() {
 };
 
 Bird.prototype.flap = function() {
+	// Play the flap sound
+	this.flapSound.play();
 	// Moves the bird on y-axis with the given velocity
 	this.body.velocity.y = -400;
 

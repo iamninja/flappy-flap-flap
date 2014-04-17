@@ -60,6 +60,9 @@ Play.prototype = {
     this.scoreText = this.game.add.bitmapText(this.game.width/2, 10, 'flappyfont', this.score.toString(), 24);
     // Set the score to be invisible by the start of the game (instruction screen)
     this.scoreText.visible = false;
+
+    // Play score sound
+    this.scoreSound = this.game.add.audio('score');
   },
 
   update: function() {
@@ -117,6 +120,7 @@ Play.prototype = {
       pipeGroup.hasScored = true;
       this.score++;
       this.scoreText.setText(this.score.toString());
+      this.scoreSound.play();
     }
   }
 };

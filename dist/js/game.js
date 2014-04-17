@@ -37,6 +37,9 @@ var Bird = function(game, x, y, frame) {
 
 	// Disable gravity on bird (untill the game start)
 	this.body.allowGravity = false;
+
+	// Add flap sound
+	this.flapSound = this.game.add.audio('flap');
 };
 
 Bird.prototype = Object.create(Phaser.Sprite.prototype);
@@ -52,6 +55,8 @@ Bird.prototype.update = function() {
 };
 
 Bird.prototype.flap = function() {
+	// Play the flap sound
+	this.flapSound.play();
 	// Moves the bird on y-axis with the given velocity
 	this.body.velocity.y = -400;
 
@@ -344,6 +349,9 @@ Play.prototype = {
     this.scoreText = this.game.add.bitmapText(this.game.width/2, 10, 'flappyfont', this.score.toString(), 24);
     // Set the score to be invisible by the start of the game (instruction screen)
     this.scoreText.visible = false;
+
+    // Play score sound
+    this.scoreSound = this.game.add.audio('score');
   },
 
   update: function() {
@@ -401,6 +409,7 @@ Play.prototype = {
       pipeGroup.hasScored = true;
       this.score++;
       this.scoreText.setText(this.score.toString());
+      this.scoreSound.play();
     }
   }
 };
@@ -434,6 +443,11 @@ Preload.prototype = {
     this.load.spritesheet('pipe', 'assets/pipes.png', 54, 320, 2);
 
     this.load.bitmapFont('flappyfont', 'assets/fonts/flappyfont/flappyfont.png', 'assets/fonts/flappyfont/flappyfont.fnt');
+
+    this.load.audio('score', 'assets/score.wav');
+    this.load.audio('flap', 'assets/flap.wav');
+    this.load.audio('pipeHit', 'assets/pipe-hit.wav');
+    this.load.audio('groundHit', 'assets/ground-hit.wav');
 
   },
   create: function() {
