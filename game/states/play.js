@@ -1,6 +1,7 @@
 'use strict';
 var Bird = require('../prefabs/bird');
 var Ground = require('../prefabs/ground');
+var PipeGroup = require('../prefabs/pipeGroup');
 
 function Play() {}
 
@@ -44,7 +45,10 @@ Play.prototype = {
   },
 
   generatePipes: function() {
-    console.log('generating pipes!');
+    var pipeY = this.game.rnd.integerInRange(-100, 100);
+    var pipeGroup = new PipeGroup(this.game);
+    pipeGroup.x = this.game.width;
+    pipeGroup.y = pipeY;
   }
 };
 

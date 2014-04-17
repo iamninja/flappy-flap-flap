@@ -3,8 +3,15 @@
 var Pipe = function(game, x, y, frame) {
   Phaser.Sprite.call(this, game, x, y, 'pipe', frame);
 
-  // initialize your prefab here
-  
+  // Set anchor point
+  this.anchor.setTo(0.5, 0.5);
+  // Add physics body to pipe
+  this.game.physics.arcade.enableBody(this);
+
+  // Disable gravity for pipes
+  this.body.allowGravity = false;
+  // Make pipe unaffected by collisions
+  this.body.immovable = true;
 };
 
 Pipe.prototype = Object.create(Phaser.Sprite.prototype);

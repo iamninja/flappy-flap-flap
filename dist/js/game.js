@@ -15,7 +15,7 @@ window.onload = function () {
 
   game.state.start('boot');
 };
-},{"./states/boot":4,"./states/gameover":5,"./states/menu":6,"./states/play":7,"./states/preload":8}],2:[function(require,module,exports){
+},{"./states/boot":6,"./states/gameover":7,"./states/menu":8,"./states/play":9,"./states/preload":10}],2:[function(require,module,exports){
 'use strict';
 
 var Bird = function(game, x, y, frame) {
@@ -86,6 +86,69 @@ Ground.prototype.update = function() {
 module.exports = Ground;
 
 },{}],4:[function(require,module,exports){
+'use strict';
+
+var Pipe = function(game, x, y, frame) {
+  Phaser.Sprite.call(this, game, x, y, 'pipe', frame);
+
+  // Set anchor point
+  this.anchor.setTo(0.5, 0.5);
+  // Add physics body to pipe
+  this.game.physics.arcade.enableBody(this);
+
+  // Disable gravity for pipes
+  this.body.allowGravity = false;
+  // Make pipe unaffected by collisions
+  this.body.immovable = true;
+};
+
+Pipe.prototype = Object.create(Phaser.Sprite.prototype);
+Pipe.prototype.constructor = Pipe;
+
+Pipe.prototype.update = function() {
+  
+  // write your prefab's specific update code here
+  
+};
+
+module.exports = Pipe;
+
+},{}],5:[function(require,module,exports){
+'use strict';
+var Pipe = require('./pipe');
+
+var PipeGroup = function(game, parent) {
+  Phaser.Group.call(this, game, parent);
+
+  // Generate new top pipe and add it to group
+  this.topPipe = new Pipe(this.game, 0, 0, 0);
+  this.add(this.topPipe);
+
+  // Generate new bottom pipe and add it to group
+  // 440 calculated by 
+  // y = pipe.height + (bird.height * 5)  
+  this.bottomPipe = new Pipe(this.game, 0, 440, 1);
+  this.add(this.bottomPipe);
+
+  // Will use this later to make scores
+  this.hasScored = false;
+
+  // Give speed to pipes in group (make them move)
+  this.setAll('body.velocity.x', -200);
+};
+
+PipeGroup.prototype = Object.create(Phaser.Group.prototype);
+PipeGroup.prototype.constructor = PipeGroup;
+
+// PipeGroup.prototype.update = function() {
+  
+//   // write your prefab's specific update code here
+  
+// };
+
+module.exports = PipeGroup;
+
+},{"./pipe":4}],6:[function(require,module,exports){
 
 'use strict';
 
@@ -104,7 +167,7 @@ Boot.prototype = {
 
 module.exports = Boot;
 
-},{}],5:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 
 'use strict';
 function GameOver() {}
@@ -132,7 +195,7 @@ GameOver.prototype = {
 };
 module.exports = GameOver;
 
-},{}],6:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 
 'use strict';
 function Menu() {}
@@ -186,10 +249,11 @@ Menu.prototype = {
 
 module.exports = Menu;
 
-},{}],7:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 var Bird = require('../prefabs/bird');
 var Ground = require('../prefabs/ground');
+var PipeGroup = require('../prefabs/pipeGroup');
 
 function Play() {}
 
@@ -233,12 +297,15 @@ Play.prototype = {
   },
 
   generatePipes: function() {
-    console.log('generating pipes!');
+    var pipeY = this.game.rnd.integerInRange(-100, 100);
+    var pipeGroup = new PipeGroup(this.game);
+    pipeGroup.x = this.game.width;
+    pipeGroup.y = pipeY;
   }
 };
 
 module.exports = Play;
-},{"../prefabs/bird":2,"../prefabs/ground":3}],8:[function(require,module,exports){
+},{"../prefabs/bird":2,"../prefabs/ground":3,"../prefabs/pipeGroup":5}],10:[function(require,module,exports){
 
 'use strict';
 function Preload() {
