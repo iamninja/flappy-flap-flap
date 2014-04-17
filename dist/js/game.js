@@ -59,6 +59,9 @@ var Ground = function(game, x, y, width, height) {
 
 	// Make ground not be affected by gravity
 	this.body.allowGravity = false;
+
+	// Make ground not be affected by collision
+	this.body.immovable = true;
 };
 
 Ground.prototype = Object.create(Phaser.TileSprite.prototype);  
@@ -201,7 +204,8 @@ Play.prototype = {
   },
 
   update: function() {
-
+    // Make bird and ground collide
+    this.game.physics.arcade.collide(this.bird, this.ground);
   }
 };
 

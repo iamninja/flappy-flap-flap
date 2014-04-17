@@ -25,7 +25,8 @@ Play.prototype = {
   },
 
   update: function() {
-
+    // Make bird and ground collide
+    this.game.physics.arcade.collide(this.bird, this.ground);
   }
 };
 
