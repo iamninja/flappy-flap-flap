@@ -1,7 +1,9 @@
 'use strict';
 var Bird = require('../prefabs/bird');
 var Ground = require('../prefabs/ground');
+var Pipe = require('../prefabs/pipe');
 var PipeGroup = require('../prefabs/pipeGroup');
+var Scoreboard = require('../prefabs/scoreboard');
 
 function Play() {}
 
@@ -61,22 +63,28 @@ Play.prototype = {
     // Set the score to be invisible by the start of the game (instruction screen)
     this.scoreText.visible = false;
 
-    // Play score sound
+    // Add sounds
     this.scoreSound = this.game.add.audio('score');
+    this.pipeHitSound = this.game.add.audio('pipeHit');
+    this.groundHitSound = this.game.add.audio('groundHit');
+
+    // Set gameover to false
+    this.gameover = false;
   },
 
   update: function() {
     // Make bird and ground collide
     this.game.physics.arcade.collide(this.bird, this.ground, this.deathHandler, null, this);
-
-    // Iterate through pipeGroups
-    this.pipes.forEach(function(pipeGroup) {
-      // Run checkScore for each pipeGroup
-      this.checkScore(pipeGroup);
-      // Enable collisions between the bird and each
-      // group in the pipes group
-      this.game.physics.arcade.collide(this.bird, pipeGroup, this.deathHandler, null, this);
-    }, this);
+    if (!this.gameover) {
+      // Iterate through pipeGroups
+      this.pipes.forEach(function(pipeGroup) {
+        // Run checkScore for each pipeGroup
+        this.checkScore(pipeGroup);
+        // Enable collisions between the bird and each
+        // group in the pipes group
+        this.game.physics.arcade.collide(this.bird, pipeGroup, this.deathHandler, null, this);
+      }, this);
+    }
   },
 
   generatePipes: function() {
@@ -86,33 +94,54 @@ Play.prototype = {
     if (!pipeGroup) {
       pipeGroup = new PipeGroup(this.game, this.pipes);
     }
-    pipeGroup.reset(this.game.width, pipeY)
+    pipeGroup.reset(this.game.width, pipeY);
   },
 
-  deathHandler: function() {
-    this.game.state.start('gameover');
+  deathHandler: function(bird, enemy) {
+    if(enemy instanceof Ground && !this.bird.onGround) {
+        this.groundHitSound.play();
+        this.scoreboard = new Scoreboard(this.game);
+        this.game.add.existing(this.scoreboard);
+        this.scoreboard.show(this.score);
+    } else if (enemy instanceof Pipe){
+        this.pipeHitSound.play();
+        this.scoreboard = new Scoreboard(this.game);
+        this.game.add.existing(this.scoreboard);
+        this.scoreboard.show(this.score);
+    }
+
+    if(!this.gameover) {
+        this.gameover = true;
+        this.bird.kill();
+        this.pipes.callAll('stop');
+        this.pipeGenerator.timer.stop();
+        this.ground.stopScroll();
+    }
   },
 
   shutdown: function() {
     this.game.input.keyboard.removeKey(Phaser.Keyboard.SPACEBAR);
     this.bird.destroy();
     this.pipes.destroy();
+    this.scoreboard.destroy();
   },
 
   startGame: function() {
-    // Enable gravity on bird and make it alive
-    this.bird.body.allowGravity = true;
-    this.bird.alive = true;
+    if (!this.bird.alive && !this.gameover) {
+      // Enable gravity on bird and make it alive
+      this.bird.body.allowGravity = true;
+      this.bird.alive = true;
 
-    // Add timer for pipeGenerator and start it
-    this.pipeGenerator = this.game.time.events.loop(Phaser.Timer.SECOND * 1.25, this.generatePipes, this);
-    this.pipeGenerator.timer.start();
+      // Add timer for pipeGenerator and start it
+      this.pipeGenerator = this.game.time.events.loop(Phaser.Timer.SECOND * 1.25, this.generatePipes, this);
+      this.pipeGenerator.timer.start();
 
-    // Kill the instruction group
-    this.instructionGroup.destroy();
+      // Kill the instruction group
+      this.instructionGroup.destroy();
 
-    // Set the scoreText to be visible
-    this.scoreText.visible = true;
+      // Set the scoreText to be visible
+      // this.scoreText.visible = true;
+    }
   },
 
   checkScore: function(pipeGroup) {

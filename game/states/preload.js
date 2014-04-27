@@ -31,6 +31,11 @@ Preload.prototype = {
     this.load.audio('pipeHit', 'assets/pipe-hit.wav');
     this.load.audio('groundHit', 'assets/ground-hit.wav');
 
+    this.load.image('scoreboard', 'assets/scoreboard.png');
+    this.load.image('gameover', 'assets/gameover.png');
+    this.load.spritesheet('medals', 'assets/medals.png', 44, 46, 2);
+    this.load.image('particle', 'assets/particle.png');
+
   },
   create: function() {
     this.asset.cropEnabled = false;

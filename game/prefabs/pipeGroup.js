@@ -24,10 +24,10 @@ var PipeGroup = function(game, parent) {
 PipeGroup.prototype = Object.create(Phaser.Group.prototype);
 PipeGroup.prototype.constructor = PipeGroup;
 PipeGroup.prototype.reset = function(x, y) {
-	// Reset the topPipe object to (0,0)
-	this.topPipe.reset(0, 0);
-	// Reset the bottomPipe object to (0, 440)
-	this.bottomPipe.reset(0, 440);
+	// Reset the topPipe object to (20,0)
+	this.topPipe.reset(20, 0);
+	// Reset the bottomPipe object to (20, 440)
+	this.bottomPipe.reset(20, 440);
 
 	// Set the group's x and y coordinates from the passed 
 	// in values (relative to the world)
@@ -53,6 +53,10 @@ PipeGroup.prototype.checkWorldBounds = function() {
 
 PipeGroup.prototype.update = function() {
 	this.checkWorldBounds();
+};
+
+PipeGroup.prototype.stop = function() {
+	this.setAll('body.velocity.x', 0);
 };
 
 module.exports = PipeGroup;

@@ -13,6 +13,8 @@ var Bird = function(game, x, y, frame) {
 
 	// The bird starts as NOT alive
 	this.alive = false;
+	// and NOT on ground
+	this.onGround = false;
 
 	// Add physics body to bird
 	this.game.physics.arcade.enableBody(this);
@@ -34,16 +36,32 @@ Bird.prototype.update = function() {
 	if (this.angle < 90 && this.alive) {
 		this.angle +=2.5;
 	}
+
+	// Zero speed on death
+	if (!this.alive) {
+		this.body.velocity.x = 0;
+	}
 };
 
 Bird.prototype.flap = function() {
-	// Play the flap sound
-	this.flapSound.play();
-	// Moves the bird on y-axis with the given velocity
-	this.body.velocity.y = -400;
+	if (this.alive) {
+		// Play the flap sound
+		this.flapSound.play();
+		// Moves the bird on y-axis with the given velocity
+		this.body.velocity.y = -400;
 
-	// Rotate the bird as it moves to -40 degrees
-	this.game.add.tween(this).to({angle: -40}, 100).start();
+		// Rotate the bird as it moves to -40 degrees
+		this.game.add.tween(this).to({angle: -40}, 100).start();
+	}
+};
+
+Bird.prototype.onKilled = function() {
+	this.exists = true;
+	this.visible = true;
+	this.animations.stop();
+	var duration = 90 / this.y * 300;
+	this.game.add.twen(this).to({angle: 90}, duration).start();
+	console.log('killed');
 };
 
 module.exports = Bird;
